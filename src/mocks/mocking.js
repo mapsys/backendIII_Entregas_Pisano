@@ -1,4 +1,8 @@
 import { faker } from '@faker-js/faker';
+import bcrypt from 'bcrypt';
+
+// Hash de "coder123" generado una sola vez para mejor performance
+const HASHED_PASSWORD = bcrypt.hashSync('coder123', 10);
 
 // Genera un usuario fake
 export const generateUser = () => {
@@ -9,7 +13,7 @@ export const generateUser = () => {
         first_name: firstName,
         last_name: lastName,
         email: faker.internet.email({ firstName, lastName }),
-        password: faker.internet.password(),
+        password: HASHED_PASSWORD,
         role: faker.helpers.arrayElement(['user', 'admin']),
         pets: []
     };
