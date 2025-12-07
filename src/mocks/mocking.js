@@ -1,5 +1,6 @@
 import { faker } from '@faker-js/faker';
 import bcrypt from 'bcrypt';
+import mongoose from 'mongoose';
 
 // Hash de "coder123" generado una sola vez para mejor performance
 const HASHED_PASSWORD = bcrypt.hashSync('coder123', 10);
@@ -10,6 +11,7 @@ export const generateUser = () => {
     const lastName = faker.person.lastName();
 
     return {
+        _id: new mongoose.Types.ObjectId(),
         first_name: firstName,
         last_name: lastName,
         email: faker.internet.email({ firstName, lastName }),
@@ -38,6 +40,7 @@ export const generatePet = () => {
     }
 
     return {
+        _id: new mongoose.Types.ObjectId(),
         name: name,
         specie: specie,
         birthDate: faker.date.past({ years: 10 }),
