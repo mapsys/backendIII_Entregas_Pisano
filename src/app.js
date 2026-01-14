@@ -8,12 +8,17 @@ import petsRouter from './routes/pets.router.js';
 import adoptionsRouter from './routes/adoption.router.js';
 import sessionsRouter from './routes/sessions.router.js';
 import mocksRouter from './routes/mocks.router.js';
-
+import swaggerUI from "swagger-ui-express";
+import swaggerJSDoc from "swagger-jsdoc";
+import { info } from './docs/swagger.config.js';
 import { errorHandler, notFoundHandler } from './middlewares/errorHandler.js';
 
 dotenv.config();
 
 const app = express();
+const specs = swaggerJSDoc(info);
+
+app.use("/docs", swaggerUI.serve, swaggerUI.setup(specs));
 const PORT = process.env.PORT || 8080;
 const connection = mongoose.connect(process.env.MONGO_URL)
 

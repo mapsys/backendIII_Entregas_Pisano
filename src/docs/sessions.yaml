@@ -1,0 +1,260 @@
+paths:
+  # POST /api/sessions/register
+  # Registra un nuevo usuario en el sistema
+  /api/sessions/register:
+    post:
+      tags:
+        - Sessions
+      summary: Registrar nuevo usuario
+      description: Crea un nuevo usuario en el sistema con los datos proporcionados
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterRequest"
+      responses:
+        "201":
+          description: Usuario creado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+        "400":
+          description: Datos invalidos o email ya registrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: error
+                  message:
+                    type: string
+                    example: El email ya esta registrado
+        "500":
+          description: Error interno del servidor
+
+  # POST /api/sessions/login
+  # Autentica un usuario existente
+  /api/sessions/login:
+    post:
+      tags:
+        - Sessions
+      summary: Iniciar sesion
+      description: Autentica un usuario con email y password. Retorna cookie de sesion.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: Login exitoso
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+        "400":
+          description: Datos invalidos
+        "401":
+          description: Credenciales incorrectas
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: error
+                  message:
+                    type: string
+                    example: Credenciales invalidas
+        "404":
+          description: Usuario no encontrado
+        "500":
+          description: Error interno del servidor
+
+  # GET /api/sessions/current
+  # Obtiene el usuario autenticado actual (requiere cookie)
+  /api/sessions/current:
+    get:
+      tags:
+        - Sessions
+      summary: Obtener usuario actual
+      description: Retorna la informacion del usuario autenticado (requiere cookie de sesion)
+      responses:
+        "200":
+          description: Usuario actual obtenido exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+        "401":
+          description: No autenticado - Cookie invalida o no presente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: error
+                  message:
+                    type: string
+                    example: No autenticado
+        "500":
+          description: Error interno del servidor
+
+  # POST /api/sessions/unprotectedLogin
+  # Login sin proteccion (solo para testing/desarrollo)
+  /api/sessions/unprotectedLogin:
+    post:
+      tags:
+        - Sessions
+      summary: Login sin proteccion (Testing)
+      description: Endpoint de login sin validaciones. Solo para desarrollo y testing.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        "200":
+          description: Login exitoso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: Unprotected Logged in
+        "400":
+          description: Datos invalidos o incompletos
+        "404":
+          description: Usuario no encontrado
+        "500":
+          description: Error interno del servidor
+
+  # GET /api/sessions/unprotectedCurrent
+  # Current sin proteccion (solo para testing/desarrollo)
+  /api/sessions/unprotectedCurrent:
+    get:
+      tags:
+        - Sessions
+      summary: Current sin proteccion (Testing)
+      description: Obtiene usuario actual sin validaciones. Solo para desarrollo y testing.
+      responses:
+        "200":
+          description: Usuario obtenido
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+        "500":
+          description: Error interno del servidor
+
+# ===================================
+# COMPONENTS - Schemas reutilizables
+# Aqui defines las estructuras de datos que usas en los endpoints
+# ===================================
+components:
+  schemas:
+    # Schema para el request de REGISTRO
+    # Define que campos debe enviar el cliente al registrarse
+    RegisterRequest:
+      type: object
+      required:
+        - first_name
+        - last_name
+        - email
+        - password
+      properties:
+        first_name:
+          type: string
+          description: Nombre del usuario
+          example: Juan
+        last_name:
+          type: string
+          description: Apellido del usuario
+          example: Perez
+        email:
+          type: string
+          format: email
+          description: Email unico del usuario
+          example: juan.perez@example.com
+        password:
+          type: string
+          format: password
+          description: Contrasena del usuario (sera hasheada con bcrypt)
+          example: coder123
+        role:
+          type: string
+          enum: [user, admin]
+          default: user
+          description: Rol del usuario en el sistema
+          example: user
+
+    # Schema para el request de LOGIN
+    # Solo necesita email y password
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          description: Email del usuario
+          example: juan.perez@example.com
+        password:
+          type: string
+          format: password
+          description: Contrasena del usuario
+          example: coder123
+
+    # Schema para la RESPUESTA de usuario
+    # NO incluye el password por seguridad
+    UserResponse:
+      type: object
+      properties:
+        _id:
+          type: string
+          description: ID unico del usuario en MongoDB
+          example: 507f1f77bcf86cd799439011
+        first_name:
+          type: string
+          description: Nombre del usuario
+          example: Juan
+        last_name:
+          type: string
+          description: Apellido del usuario
+          example: Perez
+        email:
+          type: string
+          format: email
+          description: Email del usuario
+          example: juan.perez@example.com
+        role:
+          type: string
+          description: Rol del usuario
+          example: user
+        pets:
+          type: array
+          description: Array de mascotas asociadas al usuario
+          items:
+            type: object
+            properties:
+              _id:
+                type: string
+                description: ID de la mascota
+                example: 507f1f77bcf86cd799439012
+          example: []

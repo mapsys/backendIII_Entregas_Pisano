@@ -1,0 +1,212 @@
+paths:
+  # GET /api/adoptions
+  # Obtiene todas las adopciones del sistema
+  /api/adoptions:
+    get:
+      tags:
+        - Adoptions
+      summary: Obtener todas las adopciones
+      description: Retorna un listado completo de todas las adopciones registradas en el sistema
+      responses:
+        "200":
+          description: Adopciones obtenidas exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  payload:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Adoption"
+        "500":
+          description: Error interno del servidor
+
+  # GET /api/adoptions/{aid}
+  # Obtiene una adopcion especifica por su ID
+  /api/adoptions/{aid}:
+    get:
+      tags:
+        - Adoptions
+      summary: Obtener adopcion por ID
+      description: Retorna los datos de una adopcion especifica buscada por su ID
+      parameters:
+        - name: aid
+          in: path
+          required: true
+          description: ID de la adopcion a buscar
+          schema:
+            type: string
+            example: 507f1f77bcf86cd799439011
+      responses:
+        "200":
+          description: Adopcion encontrada exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  payload:
+                    $ref: "#/components/schemas/Adoption"
+        "404":
+          description: Adopcion no encontrada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: error
+                  error:
+                    type: string
+                    example: Adoption not found
+        "500":
+          description: Error interno del servidor
+
+  # POST /api/adoptions/{uid}/{pid}
+  # Crea una nueva adopcion vinculando un usuario con una mascota
+  /api/adoptions/{uid}/{pid}:
+    post:
+      tags:
+        - Adoptions
+      summary: Crear una adopcion
+      description: Crea una nueva adopcion asociando un usuario (uid) con una mascota (pid). La mascota debe estar disponible (no adoptada previamente).
+      parameters:
+        - name: uid
+          in: path
+          required: true
+          description: ID del usuario que adoptara la mascota
+          schema:
+            type: string
+            example: 507f1f77bcf86cd799439012
+        - name: pid
+          in: path
+          required: true
+          description: ID de la mascota a adoptar
+          schema:
+            type: string
+            example: 507f1f77bcf86cd799439011
+      responses:
+        "200":
+          description: Adopcion creada exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: Pet adopted
+        "400":
+          description: La mascota ya fue adoptada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: error
+                  error:
+                    type: string
+                    example: Pet is already adopted
+        "404":
+          description: Usuario o mascota no encontrados
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: error
+                  error:
+                    type: string
+                    example: user Not found
+        "500":
+          description: Error interno del servidor
+
+# ===================================
+# COMPONENTS - Schemas reutilizables
+# ===================================
+components:
+  schemas:
+    # Schema de Adopcion
+    # Representa la relacion entre un usuario y una mascota adoptada
+    Adoption:
+      type: object
+      properties:
+        _id:
+          type: string
+          description: ID unico de la adopcion en MongoDB
+          example: 507f1f77bcf86cd799439013
+        owner:
+          type: string
+          description: ID del usuario dueno (puede ser ObjectId o objeto populado)
+          example: 507f1f77bcf86cd799439012
+        pet:
+          type: string
+          description: ID de la mascota adoptada (puede ser ObjectId o objeto populado)
+          example: 507f1f77bcf86cd799439011
+
+    # Schema de Adopcion con datos populados
+    # Cuando se hace populate(), owner y pet contienen los objetos completos
+    AdoptionPopulated:
+      type: object
+      properties:
+        _id:
+          type: string
+          description: ID unico de la adopcion en MongoDB
+          example: 507f1f77bcf86cd799439013
+        owner:
+          type: object
+          description: Datos completos del usuario dueno
+          properties:
+            _id:
+              type: string
+              example: 507f1f77bcf86cd799439012
+            first_name:
+              type: string
+              example: Juan
+            last_name:
+              type: string
+              example: Perez
+            email:
+              type: string
+              example: juan.perez@example.com
+            role:
+              type: string
+              example: user
+        pet:
+          type: object
+          description: Datos completos de la mascota adoptada
+          properties:
+            _id:
+              type: string
+              example: 507f1f77bcf86cd799439011
+            name:
+              type: string
+              example: Firulais
+            specie:
+              type: string
+              example: Perro
+            birthDate:
+              type: string
+              format: date
+              example: 2020-05-15
+            adopted:
+              type: boolean
+              example: true
+            image:
+              type: string
+              example: /public/img/firulais.jpg
