@@ -1,4 +1,7 @@
 import { adoptionsService, petsService, usersService } from "../services/index.js"
+import mongoose from "mongoose";
+
+const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
 
 const getAllAdoptions = async(req,res)=>{
     const result = await adoptionsService.getAll();
@@ -7,6 +10,7 @@ const getAllAdoptions = async(req,res)=>{
 
 const getAdoption = async(req,res)=>{
     const adoptionId = req.params.aid;
+    if(!isValidObjectId(adoptionId)) return res.status(400).send({status:"error",error:"Invalid adoption ID format"})
     const adoption = await adoptionsService.getBy({_id:adoptionId})
     if(!adoption) return res.status(404).send({status:"error",error:"Adoption not found"})
     res.send({status:"success",payload:adoption})
@@ -14,6 +18,8 @@ const getAdoption = async(req,res)=>{
 
 const createAdoption = async(req,res)=>{
     const {uid,pid} = req.params;
+    if(!isValidObjectId(uid)) return res.status(400).send({status:"error",error:"Invalid user ID format"})
+    if(!isValidObjectId(pid)) return res.status(400).send({status:"error",error:"Invalid pet ID format"})
     const user = await usersService.getUserById(uid);
     if(!user) return res.status(404).send({status:"error", error:"user Not found"});
     const pet = await petsService.getBy({_id:pid});

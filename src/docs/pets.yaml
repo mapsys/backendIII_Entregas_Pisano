@@ -1,6 +1,4 @@
 paths:
-  # GET /api/pets
-  # Obtiene todas las mascotas del sistema
   /api/pets:
     get:
       tags:

@@ -37,4 +37,9 @@ app.use(notFoundHandler);
 // Middleware para manejo de errores (debe ir al final)
 app.use(errorHandler);
 
-app.listen(PORT,()=>console.log(`Listening on ${PORT}`))
+// Solo iniciar el servidor si no estamos en modo test
+if (process.env.NODE_ENV !== 'test') {
+  app.listen(PORT, () => console.log(`Listening on ${PORT}`));
+}
+
+export default app;
