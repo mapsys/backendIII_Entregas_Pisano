@@ -2,7 +2,7 @@ import { faker } from '@faker-js/faker';
 import bcrypt from 'bcrypt';
 import mongoose from 'mongoose';
 
-// Hash de "coder123" generado una sola vez para mejor performance
+// Hash de "coder123" generado una sola vez
 const HASHED_PASSWORD = bcrypt.hashSync('coder123', 10);
 
 // Genera un usuario fake

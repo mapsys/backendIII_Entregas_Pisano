@@ -2,7 +2,7 @@ import { CustomError } from '../utils/errors.js';
 
 // Middleware para manejar errores de forma centralizada
 export const errorHandler = (err, req, res, next) => {
-    // Si es un error personalizado, usar su statusCode y mensaje
+    // Si es un error personalizado
     if (err instanceof CustomError) {
         return res.status(err.statusCode).json({
             status: 'error',

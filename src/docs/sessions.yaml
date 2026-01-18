@@ -161,10 +161,6 @@ paths:
         "500":
           description: Error interno del servidor
 
-# ===================================
-# COMPONENTS - Schemas reutilizables
-# Aqui defines las estructuras de datos que usas en los endpoints
-# ===================================
 components:
   schemas:
     # Schema para el request de REGISTRO
