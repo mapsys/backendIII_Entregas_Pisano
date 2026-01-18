@@ -1,0 +1,237 @@
+paths:
+  /api/users:
+    get:
+      summary: Obtener todos los usuarios
+      tags:
+        - Users
+      description: Retorna una lista con todos los usuarios registrados en el sistema.
+      responses:
+        "200":
+          description: Lista de usuarios obtenida exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  payload:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/User"
+        "500":
+          description: Error interno del servidor
+
+  /api/users/{uid}:
+    get:
+      summary: Obtener un usuario por ID
+      tags:
+        - Users
+      description: Retorna los datos de un usuario especifico segun su ID.
+      parameters:
+        - name: uid
+          in: path
+          required: true
+          description: ID del usuario (ObjectId de MongoDB)
+          schema:
+            type: string
+            example: "64f5a1234567890abcdef123"
+      responses:
+        "200":
+          description: Usuario encontrado exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  payload:
+                    $ref: "#/components/schemas/User"
+        "400":
+          description: ID con formato invalido
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                status: error
+                error: Invalid user ID format
+        "404":
+          description: Usuario no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                status: error
+                error: User not found
+        "500":
+          description: Error interno del servidor
+
+    put:
+      summary: Actualizar un usuario
+      tags:
+        - Users
+      description: Actualiza los datos de un usuario existente. Se pueden enviar todos los campos o solo los que se desean modificar (actualizacion parcial).
+      parameters:
+        - name: uid
+          in: path
+          required: true
+          description: ID del usuario a actualizar
+          schema:
+            type: string
+            example: "64f5a1234567890abcdef123"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateUserRequest"
+      responses:
+        "200":
+          description: Usuario actualizado exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: User updated
+        "400":
+          description: ID con formato invalido
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Usuario no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                status: error
+                error: User not found
+        "500":
+          description: Error interno del servidor
+
+    delete:
+      summary: Eliminar un usuario
+      tags:
+        - Users
+      description: Elimina un usuario del sistema de forma permanente.
+      parameters:
+        - name: uid
+          in: path
+          required: true
+          description: ID del usuario a eliminar
+          schema:
+            type: string
+            example: "64f5a1234567890abcdef123"
+      responses:
+        "200":
+          description: Usuario eliminado exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: User deleted
+        "400":
+          description: ID con formato invalido
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Usuario no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                status: error
+                error: User not found
+        "500":
+          description: Error interno del servidor
+
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        _id:
+          type: string
+          description: ID unico del usuario (ObjectId)
+          example: "64f5a1234567890abcdef123"
+        first_name:
+          type: string
+          description: Nombre del usuario
+          example: Juan
+        last_name:
+          type: string
+          description: Apellido del usuario
+          example: Perez
+        email:
+          type: string
+          description: Email del usuario (unico)
+          example: juan.perez@email.com
+        password:
+          type: string
+          description: Password hasheado con bcrypt
+          example: "$2b$10$..."
+        role:
+          type: string
+          description: Rol del usuario
+          enum: [user, admin]
+          example: user
+        pets:
+          type: array
+          description: Array de IDs de mascotas adoptadas
+          items:
+            type: string
+          example: []
+
+    UpdateUserRequest:
+      type: object
+      description: Campos a actualizar (todos opcionales)
+      properties:
+        first_name:
+          type: string
+          description: Nuevo nombre
+          example: Carlos
+        last_name:
+          type: string
+          description: Nuevo apellido
+          example: Garcia
+        email:
+          type: string
+          description: Nuevo email
+          example: carlos.garcia@email.com
+        role:
+          type: string
+          description: Nuevo rol
+          enum: [user, admin]
+          example: admin
+
+    ErrorResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: error
+        error:
+          type: string
+          example: Descripcion del error
