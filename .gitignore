@@ -1,5 +1,4 @@
 node_modules
-/test
 .env
 PROGRESO_SESION.md
 /src/public/img
